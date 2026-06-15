@@ -1,13 +1,13 @@
-# Sistema de Optimización - Roque Transport E.I.R.L.
+# Sistema de Optimización - RODRIK Transport E.I.R.L E.I.R.L.
 
-Este proyecto es una aplicación de escritorio desarrollada en Python que se integra con el motor de optimización LINGO y una base de datos SQL Server para resolver problemas de ruteo, asignación de flota y optimización de costos para Roque Transport E.I.R.L.
+Este proyecto es una aplicación de escritorio desarrollada en Python que se integra con el motor de optimización LINGO y una base de datos SQL Server para resolver problemas de ruteo, asignación de flota y optimización de costos para RODRIK Transport E.I.R.L.
 
 ## Arquitectura del Proyecto
 
 El sistema está compuesto por tres componentes principales:
 1. **Base de Datos (SQL Server)**: Almacena los parámetros del problema (oferta, demanda, flota, costos) y recibe los resultados de la optimización (`bd.sql`).
 2. **Modelo Matemático (LINGO)**: Un script de LINGO (`MODELO LINGO.lng` o `.lg4`) que se conecta a SQL Server vía ODBC para importar parámetros, resolver el modelo de optimización lineal/entera y exportar los resultados de vuelta a la base de datos.
-3. **Interfaz de Usuario (Python)**: Una aplicación visual (`app_roque.py`) desarrollada con Tkinter que coordina el proceso: ejecuta LINGO silenciosamente en segundo plano, lee los resultados en la base de datos y los presenta al usuario de forma amigable junto con métricas financieras.
+3. **Interfaz de Usuario (Python)**: Una aplicación visual (`app_rodrik.py`) desarrollada con Tkinter que coordina el proceso: ejecuta LINGO silenciosamente en segundo plano, lee los resultados en la base de datos y los presenta al usuario de forma amigable junto con métricas financieras.
 
 ## Requisitos Previos
 
@@ -23,7 +23,7 @@ Para ejecutar este proyecto en tu computadora, sigue estos pasos:
 ### 1. Clonar el Repositorio
 Abre tu terminal y clona este proyecto:
 ```bash
-git clone https://github.com/rony-ramos/Sistema-de-Optimizaci-n---Roque-Transport-E.I.R.L..git
+git clone https://github.com/rony-ramos/Sistema-de-Optimizaci-n---RODRIK Transport E.I.R.L..git
 cd Sistema-de-Optimizaci-n---Roque-Transport-E.I.R.L./IOP2
 ```
 
@@ -53,14 +53,14 @@ pip install -r requirements.txt
 - Si necesitas reiniciar las tablas de exportación en algún momento, el propio script cuenta con un bloque al final para limpiar y repoblar las 48/288 filas necesarias.
 
 ### 2. Configurar la Conexión ODBC
-- Por defecto, `app_roque.py` está apuntando al servidor `DESKTOP-KDQUSML\SQLEXPRESS`.
-- Abre `app_roque.py` y edita la constante `SERVER_SQL` (alrededor de la línea 56) si el nombre de tu servidor local SQL es distinto.
+- Por defecto, `app_rodrik.py` está apuntando al servidor `DESKTOP-KDQUSML\SQLEXPRESS`.
+- Abre `app_rodrik.py` y edita la constante `SERVER_SQL` (alrededor de la línea 56) si el nombre de tu servidor local SQL es distinto.
 - **Importante para LINGO**: Tu sistema Windows debe tener configurado un DSN ODBC, o bien el modelo LINGO usará una cadena de conexión directa. Asegúrate de que LINGO tenga permisos para autenticarse (usa *Trusted_Connection* por defecto).
 
 ### 3. Ejecutar la Aplicación
 Inicia la interfaz ejecutando:
 ```bash
-python app_roque.py
+python app_rodrik.py
 ```
 
 ### 4. Características de Resiliencia y Rendimiento
