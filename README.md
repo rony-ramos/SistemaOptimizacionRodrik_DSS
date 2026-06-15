@@ -16,12 +16,34 @@ El sistema está compuesto por tres componentes principales:
 - **Microsoft SQL Server** (local o express).
 - **Controlador ODBC** para SQL Server.
 
-### Dependencias de Python
-Puedes instalar las librerías necesarias con:
+## Guía de Instalación (Entorno Local)
+
+Para ejecutar este proyecto en tu computadora, sigue estos pasos:
+
+### 1. Clonar el Repositorio
+Abre tu terminal y clona este proyecto:
 ```bash
-pip install pandas pyodbc
+git clone https://github.com/rony-ramos/Sistema-de-Optimizaci-n---Roque-Transport-E.I.R.L..git
+cd Sistema-de-Optimizaci-n---Roque-Transport-E.I.R.L./IOP2
 ```
-*(Nota: Tkinter ya viene incluido en la instalación estándar de Python).*
+
+### 2. Crear un Entorno Virtual (Recomendado)
+Para no afectar otras instalaciones de Python en tu sistema, crea un entorno virtual (venv):
+```bash
+# Crear entorno virtual
+python -m venv venv
+
+# Activar el entorno virtual (En Windows)
+venv\Scripts\activate
+```
+*(Nota: Cuando el entorno esté activo, verás `(venv)` al inicio de tu línea de comandos).*
+
+### 3. Instalar Dependencias
+Con el entorno virtual activado, instala todas las librerías necesarias ejecutando:
+```bash
+pip install -r requirements.txt
+```
+*(Tkinter, la librería gráfica utilizada para la interfaz, ya viene incluida en la instalación estándar de Python en Windows, por lo que no necesita ser instalada con pip).*
 
 ## Configuración y Ejecución
 
