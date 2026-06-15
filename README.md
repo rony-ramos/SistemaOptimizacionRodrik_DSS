@@ -24,7 +24,7 @@ Para ejecutar este proyecto en tu computadora, sigue estos pasos:
 Abre tu terminal y clona este proyecto:
 ```bash
 git clone https://github.com/rony-ramos/Sistema-de-Optimizaci-n---RODRIK Transport E.I.R.L..git
-cd Sistema-de-Optimizaci-n---Roque-Transport-E.I.R.L./IOP2
+cd Sistema-de-Optimizaci-n---RODRIK-Transport-E.I.R.L./IOP2
 ```
 
 ### 2. Crear un Entorno Virtual (Recomendado)
