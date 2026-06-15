@@ -64,7 +64,7 @@ CONN_STR = f'DRIVER={{SQL Server}};SERVER={SERVER_SQL};DATABASE={DB_NAME};Truste
 class RoqueInterface:
     def __init__(self, root):
         self.root = root
-        self.root.title("Sistema de Optimización - Roque Transport E.I.R.L.")
+        self.root.title("Sistema de Optimización - RODRIK Transport E.I.R.L.")
         self.root.geometry("1300x850")
         self.root.configure(bg="#e6e6e6")
 
@@ -300,47 +300,103 @@ class RoqueInterface:
     # VERIFICAR RESTRICCIONES (USA CONEXIÓN INTERNA AISLADA)
     # =========================================================================
     def verificar_restricciones(self, conn_externa=None):
+    """
+    Verifica las restricciones principales del modelo:
+    1. Compatibilidad entre camión y producto.
+    2. Disponibilidad máxima de viajes por tipo de camión y periodo.
+    """
+    try:
+        self.log("Verificando restricciones del modelo...")
+
+        t0 = time.time()
+        conn_check = conn_externa if conn_externa else pyodbc.connect(CONN_STR)
+
+        # ============================================================
+        # 1. VALIDAR COMPATIBILIDAD CAMIÓN - PRODUCTO
+        # ============================================================
+        query_compatibilidad = """
+            SELECT 
+                c.tipo_camion,
+                p.nombre_producto,
+                SUM(r.num_viajes) AS total_viajes
+            FROM RESULTADOS_OPTIMIZACION r
+            JOIN CAMION c ON r.id_camion = c.id_camion
+            JOIN PRODUCTO p ON r.id_producto = p.id_producto
+            LEFT JOIN VALIDA_CAMION_PRODUCTO v
+                ON r.id_camion = v.id_camion
+               AND r.id_producto = v.id_producto
+               AND v.estado = 1
+            WHERE r.num_viajes > 0
+              AND v.id_valida IS NULL
+            GROUP BY c.tipo_camion, p.nombre_producto
         """
-        [BOTÓN]: Inicia la verificación de exclusividad. Usa conn_externa si se provee.
+
+        df_compatibilidad = pd.read_sql(query_compatibilidad, conn_check)
+
+        if not df_compatibilidad.empty:
+            self.log("❌ Violaciones de compatibilidad camión-producto encontradas:")
+            for _, row in df_compatibilidad.iterrows():
+                self.log(
+                    f"   - {row['tipo_camion']} transportando {row['nombre_producto']}: "
+                    f"{row['total_viajes']:.2f} viajes"
+                )
+
+            messagebox.showwarning(
+                "Restricción violada",
+                "Se encontraron combinaciones no permitidas entre camión y producto."
+            )
+        else:
+            self.log("✅ No se encontraron violaciones de compatibilidad camión-producto.")
+
+        # ============================================================
+        # 2. VALIDAR DISPONIBILIDAD MÁXIMA DE VIAJES
+        # ============================================================
+        query_disponibilidad = """
+            SELECT 
+                c.tipo_camion,
+                pe.nombre_periodo,
+                SUM(r.num_viajes) AS viajes_asignados,
+                dc.cantidad_viajes AS viajes_disponibles
+            FROM RESULTADOS_OPTIMIZACION r
+            JOIN CAMION c ON r.id_camion = c.id_camion
+            JOIN PERIODO pe ON r.id_periodo = pe.id_periodo
+            JOIN DISPONIBILIDAD_CAMION dc
+                ON r.id_camion = dc.id_camion
+               AND r.id_periodo = dc.id_periodo
+            WHERE r.num_viajes > 0
+            GROUP BY 
+                c.tipo_camion,
+                pe.nombre_periodo,
+                dc.cantidad_viajes
+            HAVING SUM(r.num_viajes) > dc.cantidad_viajes
         """
-        try:
-            self.log("Verificando violaciones de exclusividad...");
-            
-            t0 = time.time()
-            conn_check = conn_externa if conn_externa else pyodbc.connect(CONN_STR)
 
-            query = """
-                    SELECT r.tipo_camion, r.nombre_producto, SUM(r.num_viajes) as total_viajes
-                    FROM RESULTADOS_OPTIMIZACION r
-                    WHERE r.num_viajes > 0
-                      AND (
-                        (r.nombre_producto LIKE '%HELADOS%' AND r.tipo_camion NOT LIKE '%THERMO%')
-                            OR
-                        (r.nombre_producto NOT LIKE '%HELADOS%' AND r.tipo_camion LIKE '%THERMO%')
-                        )
-                    GROUP BY r.tipo_camion, r.nombre_producto \
-                    """
+        df_disponibilidad = pd.read_sql(query_disponibilidad, conn_check)
 
-            df_violaciones = pd.read_sql(query, conn_check)
+        if not df_disponibilidad.empty:
+            self.log("❌ Violaciones de disponibilidad máxima de viajes encontradas:")
+            for _, row in df_disponibilidad.iterrows():
+                self.log(
+                    f"   - {row['tipo_camion']} en {row['nombre_periodo']}: "
+                    f"{row['viajes_asignados']:.2f} viajes asignados / "
+                    f"{row['viajes_disponibles']} disponibles"
+                )
 
-            if not df_violaciones.empty:
-                self.log("❌ VIOLACIONES DE EXCLUSIVIDAD ENCONTRADAS:")
-                for _, row in df_violaciones.iterrows():
-                    self.log(
-                        f"   - {row['tipo_camion']} transportando {row['nombre_producto']}: {row['total_viajes']:.2f} viajes")
-                messagebox.showwarning("Restricciones Violadas",
-                                       "Se encontraron violaciones de exclusividad. Revisa el modelo LINGO.")
-            else:
-                self.log("✅ No se encontraron violaciones de exclusividad en los resultados.")
+            messagebox.showwarning(
+                "Restricción violada",
+                "Se asignaron más viajes de los disponibles para uno o más camiones."
+            )
+        else:
+            self.log("✅ No se encontraron violaciones de disponibilidad de camiones.")
 
-            if not conn_externa:
-                conn_check.close()
-                
-            t1 = time.time()
-            self.log(f"[DEBUG] verificar_restricciones tomó {t1-t0:.2f}s")
+        if not conn_externa:
+            conn_check.close()
 
-        except Exception as e:
-            self.log(f"❌ Error verificando restricciones: {e}")
+        t1 = time.time()
+        self.log(f"[DEBUG] verificar_restricciones tomó {t1 - t0:.2f}s")
+
+    except Exception as e:
+        self.log(f"❌ Error verificando restricciones: {e}")
 
     # =========================================================================
     # LÓGICA 2: EJECUTAR OPTIMIZACIÓN (LINGO)
@@ -538,5 +594,5 @@ class RoqueInterface:
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = RoqueInterface(root)
+    app = RodrikInterface(root)
     root.mainloop()
