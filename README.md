@@ -56,6 +56,7 @@ pip install -r requirements.txt
 - Por defecto, `app_rodrik.py` está apuntando al servidor `DESKTOP-KDQUSML\SQLEXPRESS`.
 - Abre `app_rodrik.py` y edita la constante `SERVER_SQL` (alrededor de la línea 56) si el nombre de tu servidor local SQL es distinto.
 - **Importante para LINGO**: Tu sistema Windows debe tener configurado un DSN ODBC, o bien el modelo LINGO usará una cadena de conexión directa. Asegúrate de que LINGO tenga permisos para autenticarse (usa *Trusted_Connection* por defecto).
+- El nombre del ODBC en windows debe tener el nombre de `RODRIK_ODBC`. Para configurarlo en Windows, ve a "Fuentes de datos ODBC" (busca en el buscador de Windows) y configura un nuevo DSN de 32 bits (ya que LINGO es de 32 bits) con el nombre `RODRIK_ODBC` y apunta a tu servidor SQL Server y selecciona por defecto la base de datos `RODRIK_TRANSPORT_OPTIMIZATION` en la configuración del ODBC.
 
 ### 3. Ejecutar la Aplicación
 Inicia la interfaz ejecutando:
