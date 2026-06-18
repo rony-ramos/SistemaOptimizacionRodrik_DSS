@@ -29,17 +29,14 @@ def get_modelo_path():
     except NameError:
         base_dir = os.path.abspath(".")
     
-    # modules/config.py is one level deeper, so we need to adjust search dir
     parent_dir = os.path.dirname(base_dir) # IOP2
     grandparent_dir = os.path.dirname(parent_dir)
     
-    # Buscar en el directorio de la aplicación (IOP2) y un nivel más arriba
     for search_dir in [parent_dir, grandparent_dir]:
-        # Preferimos la versión en texto (.lng) a la binaria (.lg4)
-        for ext in ["*.lng", "*.lg4"]:
+        for ext in ["*.lng"]:
             archivos = glob.glob(os.path.join(search_dir, ext))
             for f in archivos:
-                if "MODELO" in os.path.basename(f).upper() and "LINGO" in os.path.basename(f).upper():
+                if "LINGO" in os.path.basename(f).upper():
                     return f
     return ""
 

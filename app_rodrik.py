@@ -36,12 +36,25 @@ class Orchestrator:
 
     def reload_data(self):
         try:
-            self.ui.log("Cargando datos de oferta y demanda...")
+            self.ui.log("Cargando datos maestros y de configuración...")
+            
+            # Pestaña 1: Oferta y Demanda
             df_o = db.fetch_oferta()
             df_d = db.fetch_demanda()
             self.ui.update_oferta(df_o)
             self.ui.update_demanda(df_d)
-            self.ui.log("✅ Datos cargados correctamente")
+            
+            # Pestaña 2: Flota y Compatibilidad
+            df_cam = db.fetch_camiones()
+            df_comp = db.fetch_matriz_compatibilidad()
+            self.ui.update_camiones(df_cam)
+            self.ui.update_compatibilidad(df_comp)
+
+            # Pestaña 3: Tarifario
+            df_tar = db.fetch_tarifario()
+            self.ui.update_tarifario(df_tar)
+
+            self.ui.log("✅ Todos los datos cargados correctamente")
         except Exception as e:
             self.ui.log(f"❌ Error cargando inputs: {e}")
             self.ui.show_error("Error", f"Error cargando datos:\n{e}")
@@ -131,11 +144,16 @@ class Orchestrator:
 
             self.ui.log(f"📊 Encontrados {len(df_res)} registros de envíos")
 
-            df_falta = db.fetch_faltantes(conn)
+            # Cargar detalle de faltantes para la tabla
+            df_falta_detalle = db.fetch_faltantes_detalle(conn)
+            self.ui.update_faltantes(df_falta_detalle)
+
+            # Cargar agregado de faltantes y demanda para métricas
+            df_falta_total = db.fetch_faltantes(conn)
             demanda_total_df = db.fetch_demanda_total(conn)
 
-            df_res, total_costo, total_viajes, total_volumen, demanda_total = opt.calculate_metrics(
-                df_res, df_falta, demanda_total_df
+            df_res, total_costo_operativo, costo_penalidad, total_viajes, total_volumen, demanda_total = opt.calculate_metrics(
+                df_res, df_falta_total, demanda_total_df
             )
             
             t_calc = time.time()
@@ -165,7 +183,7 @@ class Orchestrator:
                     servicio_color = "green"
                     self.ui.log(f"✅ Nivel de servicio óptimo: {servicio:.2f}%")
 
-            self.ui.update_cards(total_costo, total_viajes, servicio_text, servicio_color)
+            self.ui.update_cards(total_costo_operativo, costo_penalidad, total_viajes, servicio_text, servicio_color)
             self.ui.update_treeview(df_res)
             
             t_ui = time.time()

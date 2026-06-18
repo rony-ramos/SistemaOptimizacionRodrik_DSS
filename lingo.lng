@@ -1,0 +1,137 @@
+MODEL:
+SETS:
+    ORIGEN:  ;
+    DESTINO:  ;
+    CAMION: capacidad_efectiva, costo_fijo, ID_C; 
+    PRODUCTO: ID_P;  
+    PERIODO: ;
+
+    COMBINACION(CAMION, PRODUCTO): VALIDO;
+    CAMION_PERIODO(CAMION, PERIODO): DISPONIBILIDAD_CAMION;    
+
+    ORIGEN_PRODUCTO_PERIODO(ORIGEN, PRODUCTO, PERIODO): OFERTA;
+    DESTINO_PRODUCTO_PERIODO(DESTINO, PRODUCTO, PERIODO): DEMANDA, FALTA; 
+
+    RUTA_PRODUCTO(ORIGEN, DESTINO, PRODUCTO): COSTO_VIAJE; 
+
+    RUTA_CAMION_PERIODO(ORIGEN, DESTINO, CAMION, PRODUCTO, PERIODO):
+        X, N, Y;
+ENDSETS
+
+
+DATA:
+
+    ORIGEN   = @ODBC('RODRIK_ODBC', 'VW_ORIGEN_ORDENADO', 'nombre_origen');
+    DESTINO  = @ODBC('RODRIK_ODBC', 'VW_DESTINO_ORDENADO', 'nombre_destino'); 
+    PERIODO  = @ODBC('RODRIK_ODBC', 'VW_PERIODO_ORDENADO', 'nombre_periodo');
+
+    CAMION   = @ODBC('RODRIK_ODBC', 'VW_CAMION_ORDENADO', 'tipo_camion'); 
+    PRODUCTO = @ODBC('RODRIK_ODBC', 'VW_PRODUCTO_ORDENADO', 'nombre_producto');
+
+    ID_C = @ODBC('RODRIK_ODBC', 'VW_CAMION_ORDENADO', 'id_camion'); 
+    ID_P = @ODBC('RODRIK_ODBC', 'VW_PRODUCTO_ORDENADO', 'id_producto'); 
+    
+    VALIDO  = @ODBC('RODRIK_ODBC','VW_MATRIZ_COMPATIBILIDAD','es_valido'); 
+
+    capacidad_efectiva = @ODBC('RODRIK_ODBC', 'VW_CAMION_ORDENADO', 'capacidad_efectiva');
+    costo_fijo         = @ODBC('RODRIK_ODBC', 'VW_CAMION_ORDENADO', 'costo_fijo'); 
+
+    COSTO_VIAJE        = @ODBC('RODRIK_ODBC', 'COSTO', 'costo_base'); 
+
+    OFERTA             = @ODBC('RODRIK_ODBC', 'VW_OFERTA_ORDENADO', 'cantidad_tn'); 
+    DEMANDA            = @ODBC('RODRIK_ODBC', 'VW_DEMANDA_ORDENADO', 'cantidad_tn'); 
+    DISPONIBILIDAD_CAMION = @ODBC('RODRIK_ODBC', 'VW_DISPONIBILIDAD_ORDENADO', 'cantidad_viajes'); 
+
+    @ODBC('RODRIK_ODBC','RESULTADOS_FALTA','nombre_destino','nombre_producto','semana','cantidad_falta') = DESTINO_PRODUCTO_PERIODO, FALTA;
+
+    @ODBC('RODRIK_ODBC','RESULTADOS_OPTIMIZACION','nombre_origen','nombre_destino','tipo_camion','nombre_producto','semana','num_viajes') = RUTA_CAMION_PERIODO, N; 
+    @ODBC('RODRIK_ODBC','RESULTADOS_X','nombre_origen','nombre_destino','tipo_camion','nombre_producto','semana','cantidad_tn') = RUTA_CAMION_PERIODO, X;
+
+    M = 10000;   ! reducir si puedes;
+ENDDATA
+
+
+! ============================================================
+! DOMINIOS DE VARIABLES
+! ============================================================;
+
+@FOR(RUTA_CAMION_PERIODO(O, D, C, K, P):
+@GIN(N(O, D, C, K, P)); ! N representa el número de viajes realizados;
+@BIN(Y(O, D, C, K, P)); ! Y indica si se utiliza o no una ruta con un camión;
+);
+
+
+! ============================================================ 
+! RESTRICCIONES 
+! ============================================================; 
+ 
+! 1. Restricción de oferta:
+! La cantidad transportada desde cada sede de Alicorp no debe superar
+! la disponibilidad de productos en Lurín o Huachipa.;
+
+@FOR(ORIGEN_PRODUCTO_PERIODO(O, K, P):
+    @SUM(RUTA_CAMION_PERIODO(O, D, C, K, P):
+        X(O, D, C, K, P)
+    ) <= OFERTA(O, K, P);
+);
+
+! 2. Restricción de demanda:
+! Cada destino comercial debe recibir la cantidad requerida de productos Alicorp.
+! La variable FALTA representa demanda no atendida y se penaliza en la función objetivo.;
+
+@FOR(DESTINO_PRODUCTO_PERIODO(D, K, P):
+    @SUM(RUTA_CAMION_PERIODO(O, D, C, K, P):
+        X(O, D, C, K, P)
+    ) + FALTA(D, K, P) >= DEMANDA(D, K, P);
+);
+
+! 3. Relación entre toneladas transportadas y número de viajes:
+! La cantidad enviada depende de la cantidad de viajes y de la capacidad efectiva
+! del tipo de camion utilizado.;
+
+@FOR(RUTA_CAMION_PERIODO(O, D, C, K, P):
+    X(O, D, C, K, P) = N(O, D, C, K, P) * capacidad_efectiva(C);
+);
+
+
+! 4. Activación mediante Big-M:
+! Si se realizan viajes en una combinación origen-destino-camion-producto-periodo,
+! entonces la variable binaria Y se activa.;
+
+@FOR(RUTA_CAMION_PERIODO(O, D, C, K, P):
+    N(O, D, C, K, P) <= M * Y(O, D, C, K, P);
+);
+
+! 5. Compatibilidad camion-producto;
+! Solo se permite transportar productos con camiones compatibles.;
+! Ejemplo: el Semi Hino mediano no se usa para aceites domésticos si la matriz
+! de compatibilidad lo marca como no valido;
+
+@FOR(RUTA_CAMION_PERIODO(O, D, C, K, P):
+    Y(O, D, C, K, P) * (1 - VALIDO(C, K)) = 0;
+);
+ 
+! 6. Disponibilidad maxima de viajes por tipo de camion y periodo
+! Esta restricción limita la cantidad de viajes que puede realizar cada tipo de camion_
+! en cada semana, considerando la disponibilidad operativa de la flota;
+
+@FOR(CAMION_PERIODO(C, P):
+    @SUM(RUTA_CAMION_PERIODO(O, D, C, K, P):
+        N(O, D, C, K, P)
+    ) <= DISPONIBILIDAD_CAMION(C, P);
+);
+
+! ============================================================
+! FUNCION OBJETIVO
+! ============================================================;
+! Minimizar el costo total de transporte de productos Alicorp.
+! Se considera el costo de viaje por ruta y producto, multiplicado por las toneladas enviadas.
+! Además, se penaliza fuertemente la demanda no atendida mediante la variable FALTA.;
+
+MIN = @SUM(RUTA_CAMION_PERIODO(O, D, C, P, T): COSTO_VIAJE(O, D, P) * X(O, D, C, P, T) ) 
++ 100000 * @SUM(DESTINO_PRODUCTO_PERIODO(D, P, T): FALTA(D, P, T)); 
+
+
+
+
+END

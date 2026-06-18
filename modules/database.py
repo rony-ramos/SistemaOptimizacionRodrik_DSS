@@ -129,3 +129,60 @@ def fetch_demanda_total(conn):
     """Obtiene la demanda total en toneladas."""
     query_demanda = "SELECT SUM(cantidad_tn) as total FROM DEMANDA"
     return pd.read_sql(query_demanda, conn)
+
+def fetch_camiones():
+    """Obtiene los camiones disponibles."""
+    conn = pyodbc.connect(CONN_STR)
+    query = "SELECT tipo_camion, capacidad_efectiva, especializacion, costo_fijo FROM CAMION WHERE estado=1 ORDER BY id_camion"
+    df = pd.read_sql(query, conn)
+    conn.close()
+    return df
+
+def fetch_matriz_compatibilidad():
+    """Obtiene la matriz de compatibilidad camión-producto."""
+    conn = pyodbc.connect(CONN_STR)
+    query = """
+        SELECT c.tipo_camion, p.nombre_producto, v.es_valido 
+        FROM VW_MATRIZ_COMPATIBILIDAD v
+        JOIN CAMION c ON v.id_camion = c.id_camion
+        JOIN PRODUCTO p ON v.id_producto = p.id_producto
+        ORDER BY c.id_camion, p.id_producto
+    """
+    df = pd.read_sql(query, conn)
+    conn.close()
+    return df
+
+def fetch_disponibilidad_camiones():
+    """Obtiene la disponibilidad de viajes por camión y periodo."""
+    conn = pyodbc.connect(CONN_STR)
+    query = """
+        SELECT c.tipo_camion, pe.nombre_periodo, d.cantidad_viajes
+        FROM DISPONIBILIDAD_CAMION d
+        JOIN CAMION c ON d.id_camion = c.id_camion
+        JOIN PERIODO pe ON d.id_periodo = pe.id_periodo
+        WHERE d.estado=1
+        ORDER BY c.id_camion, pe.id_periodo
+    """
+    df = pd.read_sql(query, conn)
+    conn.close()
+    return df
+
+def fetch_tarifario():
+    """Obtiene el tarifario de costo base."""
+    conn = pyodbc.connect(CONN_STR)
+    query = """
+        SELECT o.nombre_origen, d.nombre_destino, p.nombre_producto, c.costo_base
+        FROM COSTO c
+        JOIN ORIGEN o ON c.id_origen = o.id_origen
+        JOIN DESTINO d ON c.id_destino = d.id_destino
+        JOIN PRODUCTO p ON c.id_producto = p.id_producto
+        ORDER BY o.id_origen, d.id_destino, p.id_producto
+    """
+    df = pd.read_sql(query, conn)
+    conn.close()
+    return df
+
+def fetch_faltantes_detalle(conn):
+    """Obtiene el detalle de faltantes por destino, producto y semana."""
+    query = "SELECT nombre_destino, nombre_producto, semana, cantidad_falta FROM RESULTADOS_FALTA WHERE cantidad_falta > 0.001"
+    return pd.read_sql(query, conn)
