@@ -1,4 +1,4 @@
-# Sistema de Optimización - RODRIK Transport E.I.R.L E.I.R.L.
+# Sistema de Optimización - RODRIK Transport E.I.R.L
 
 Este proyecto es una aplicación de escritorio desarrollada en Python que se integra con el motor de optimización LINGO y una base de datos SQL Server para resolver problemas de ruteo, asignación de flota y optimización de costos para RODRIK Transport E.I.R.L.
 
