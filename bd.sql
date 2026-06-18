@@ -236,16 +236,11 @@ INSERT INTO VALIDA_CAMION_PRODUCTO (id_camion, id_producto) VALUES
 -- ============================================================
 -- DISPONIBILIDAD DE VIAJES POR CAMIÓN Y SEMANA
 -- ============================================================
-
 INSERT INTO DISPONIBILIDAD_CAMION (id_camion, id_periodo, cantidad_viajes) VALUES
--- Semi trailer seco
-(1, 1, 110), (1, 2, 115), (1, 3, 120), (1, 4, 105),
+(1, 1, 80),  (1, 2, 85),  (1, 3, 90),  (1, 4, 75),
+(2, 1, 100), (2, 2, 105), (2, 3, 110), (2, 4, 95),
+(3, 1, 70),  (3, 2, 75),  (3, 3, 80),  (3, 4, 65);
 
--- Camion Hino furgon cerrado
-(2, 1, 130), (2, 2, 135), (2, 3, 140), (2, 4, 125),
-
--- Camion Semi Hino mediano de carga
-(3, 1, 100), (3, 2, 105), (3, 3, 110), (3, 4, 95);
 -- ============================================================
 -- INVENTARIO MÍNIMO
 -- Se considera 5% de la oferta como inventario de seguridad
