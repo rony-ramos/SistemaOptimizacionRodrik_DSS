@@ -49,7 +49,7 @@ pip install -r requirements.txt
 
 ### 1. Preparar la Base de Datos
 - Abre tu gestor de base de datos (SSMS o Azure Data Studio).
-- Ejecuta todo el script `bd.sql` en tu servidor SQL. Esto creará la base de datos `ROQUE_TRANSPORT_OPTIMIZATION`, las tablas, insertará los datos maestros (destinos, orígenes, camiones) e incluirá el *pre-llenado* de las tablas de resultados requerido por LINGO.
+- Ejecuta todo el script `bd.sql` en tu servidor SQL. Esto creará la base de datos `RODRIK_TRANSPORT_OPTIMIZATION`, las tablas, insertará los datos maestros (destinos, orígenes, camiones) e incluirá el *pre-llenado* de las tablas de resultados requerido por LINGO.
 - Si necesitas reiniciar las tablas de exportación en algún momento, el propio script cuenta con un bloque al final para limpiar y repoblar las 48/288 filas necesarias.
 
 ### 2. Configurar la Conexión ODBC
