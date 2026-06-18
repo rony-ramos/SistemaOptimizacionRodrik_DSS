@@ -52,8 +52,8 @@ def check_compatibilidad(conn_externa=None):
             p.nombre_producto,
             SUM(r.num_viajes) AS total_viajes
         FROM RESULTADOS_OPTIMIZACION r
-        JOIN CAMION c ON r.tipo_camion = c.tipo_camion
-        JOIN PRODUCTO p ON r.nombre_producto = p.nombre_producto
+        JOIN CAMION c ON r.tipo_camion = UPPER(REPLACE(c.tipo_camion, ' ', '_'))
+        JOIN PRODUCTO p ON r.nombre_producto = UPPER(REPLACE(p.nombre_producto, ' ', '_'))
         LEFT JOIN VALIDA_CAMION_PRODUCTO v
             ON c.id_camion = v.id_camion
         AND p.id_producto = v.id_producto
@@ -77,8 +77,8 @@ def check_disponibilidad(conn_externa=None):
             SUM(r.num_viajes) AS viajes_asignados,
             dc.cantidad_viajes AS viajes_disponibles
         FROM RESULTADOS_OPTIMIZACION r
-        JOIN CAMION c ON r.tipo_camion = c.tipo_camion
-        JOIN PERIODO pe ON r.semana = pe.nombre_periodo
+        JOIN CAMION c ON r.tipo_camion = UPPER(REPLACE(c.tipo_camion, ' ', '_'))
+        JOIN PERIODO pe ON r.semana = UPPER(REPLACE(pe.nombre_periodo, ' ', '_'))
         JOIN DISPONIBILIDAD_CAMION dc
             ON c.id_camion = dc.id_camion
         AND pe.id_periodo = dc.id_periodo
@@ -107,15 +107,15 @@ def fetch_resultados_optimizacion(conn):
                        c.costo_fijo,
                        co.costo_base
                 FROM RESULTADOS_OPTIMIZACION r
-                         LEFT JOIN CAMION c ON r.tipo_camion = c.tipo_camion
+                         LEFT JOIN CAMION c ON r.tipo_camion = UPPER(REPLACE(c.tipo_camion, ' ', '_'))
                          LEFT JOIN (SELECT o.nombre_origen, d.nombre_destino, p.nombre_producto, co.costo_base
                                     FROM COSTO co
                                              JOIN ORIGEN o ON co.id_origen = o.id_origen
                                              JOIN DESTINO d ON co.id_destino = d.id_destino
                                              JOIN PRODUCTO p ON co.id_producto = p.id_producto) co
-                                   ON r.nombre_origen = co.nombre_origen AND
-                                      r.nombre_destino = co.nombre_destino AND
-                                      r.nombre_producto = co.nombre_producto
+                                   ON r.nombre_origen = UPPER(REPLACE(co.nombre_origen, ' ', '_')) AND
+                                      r.nombre_destino = UPPER(REPLACE(co.nombre_destino, ' ', '_')) AND
+                                      r.nombre_producto = UPPER(REPLACE(co.nombre_producto, ' ', '_'))
                 WHERE r.num_viajes > 0.001
                 """
     return pd.read_sql(query_res, conn)
