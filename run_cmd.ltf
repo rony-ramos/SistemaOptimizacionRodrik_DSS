@@ -1,0 +1,5 @@
+SET ECHOIN 1
+SET TERSEO 0
+TAKE lingo.lng
+GO
+QUIT
