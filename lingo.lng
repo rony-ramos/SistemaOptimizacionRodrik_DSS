@@ -10,12 +10,15 @@ SETS:
     CAMION_PERIODO(CAMION, PERIODO): DISPONIBILIDAD_CAMION;    
 
     ORIGEN_PRODUCTO_PERIODO(ORIGEN, PRODUCTO, PERIODO): OFERTA;
-    DESTINO_PRODUCTO_PERIODO(DESTINO, PRODUCTO, PERIODO): DEMANDA, FALTA; 
+    DESTINO_PRODUCTO_PERIODO(DESTINO, PRODUCTO, PERIODO): DEMANDA, 
+        FALTA; ! FALTA = Toneladas de demanda no atendida (variable de penalizacion);
 
     RUTA_PRODUCTO(ORIGEN, DESTINO, PRODUCTO): COSTO_VIAJE; 
 
     RUTA_CAMION_PERIODO(ORIGEN, DESTINO, CAMION, PRODUCTO, PERIODO):
-        X, N, Y;
+        X, ! X = Toneladas del producto a transportar (Variable continua);
+        N, ! N = Numero de viajes a realizar (Variable entera);
+        Y; ! Y = 1 si se realiza al menos un viaje con el camion en la ruta, 0 caso contrario (Variable binaria);
 ENDSETS
 
 
@@ -56,8 +59,9 @@ ENDDATA
 ! ============================================================;
 
 @FOR(RUTA_CAMION_PERIODO(O, D, C, K, P):
-@GIN(N(O, D, C, K, P)); ! N representa el número de viajes realizados;
-@BIN(Y(O, D, C, K, P)); ! Y indica si se utiliza o no una ruta con un camión;
+    ! Indices: O = Origen, D = Destino, C = Camion, K = Producto, P = Periodo;
+    @GIN(N(O, D, C, K, P)); ! N representa el número de viajes realizados;
+    @BIN(Y(O, D, C, K, P)); ! Y indica si se utiliza o no una ruta con un camión;
 );
 
 
@@ -70,6 +74,7 @@ ENDDATA
 ! la disponibilidad de productos en Lurín o Huachipa.;
 
 @FOR(ORIGEN_PRODUCTO_PERIODO(O, K, P):
+    ! Indices: O = Origen, D = Destino, C = Camion, K = Producto, P = Periodo;
     @SUM(RUTA_CAMION_PERIODO(O, D, C, K, P):
         X(O, D, C, K, P)
     ) <= OFERTA(O, K, P);
@@ -80,6 +85,7 @@ ENDDATA
 ! La variable FALTA representa demanda no atendida y se penaliza en la función objetivo.;
 
 @FOR(DESTINO_PRODUCTO_PERIODO(D, K, P):
+    ! Indices: O = Origen, D = Destino, C = Camion, K = Producto, P = Periodo;
     @SUM(RUTA_CAMION_PERIODO(O, D, C, K, P):
         X(O, D, C, K, P)
     ) + FALTA(D, K, P) >= DEMANDA(D, K, P);
@@ -90,6 +96,7 @@ ENDDATA
 ! del tipo de camion utilizado.;
 
 @FOR(RUTA_CAMION_PERIODO(O, D, C, K, P):
+    ! Indices: O = Origen, D = Destino, C = Camion, K = Producto, P = Periodo;
     X(O, D, C, K, P) = N(O, D, C, K, P) * capacidad_efectiva(C);
 );
 
@@ -99,6 +106,7 @@ ENDDATA
 ! entonces la variable binaria Y se activa.;
 
 @FOR(RUTA_CAMION_PERIODO(O, D, C, K, P):
+    ! Indices: O = Origen, D = Destino, C = Camion, K = Producto, P = Periodo;
     N(O, D, C, K, P) <= M * Y(O, D, C, K, P);
 );
 
@@ -108,6 +116,7 @@ ENDDATA
 ! de compatibilidad lo marca como no valido;
 
 @FOR(RUTA_CAMION_PERIODO(O, D, C, K, P):
+    ! Indices: O = Origen, D = Destino, C = Camion, K = Producto, P = Periodo;
     Y(O, D, C, K, P) * (1 - VALIDO(C, K)) = 0;
 );
  
@@ -116,6 +125,7 @@ ENDDATA
 ! en cada semana, considerando la disponibilidad operativa de la flota;
 
 @FOR(CAMION_PERIODO(C, P):
+    ! Indices: O = Origen, D = Destino, C = Camion, K = Producto, P = Periodo;
     @SUM(RUTA_CAMION_PERIODO(O, D, C, K, P):
         N(O, D, C, K, P)
     ) <= DISPONIBILIDAD_CAMION(C, P);
@@ -128,8 +138,8 @@ ENDDATA
 ! Se considera el costo de viaje por ruta y producto, multiplicado por las toneladas enviadas.
 ! Además, se penaliza fuertemente la demanda no atendida mediante la variable FALTA.;
 
-MIN = @SUM(RUTA_CAMION_PERIODO(O, D, C, P, T): COSTO_VIAJE(O, D, P) * X(O, D, C, P, T) ) 
-+ 100000 * @SUM(DESTINO_PRODUCTO_PERIODO(D, P, T): FALTA(D, P, T)); 
+MIN = @SUM(RUTA_CAMION_PERIODO(O, D, C, K, P): COSTO_VIAJE(O, D, K) * X(O, D, C, K, P) ) 
++ 100000 * @SUM(DESTINO_PRODUCTO_PERIODO(D, K, P): FALTA(D, K, P)); 
 
 
 
