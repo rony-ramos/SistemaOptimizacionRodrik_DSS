@@ -1,6 +1,24 @@
 import os
 import glob
 
+# Configuración de Negocio
+def get_presupuesto_limite(model_path):
+    """Extrae dinámicamente el presupuesto límite definido en el archivo LINGO."""
+    if not model_path or not os.path.exists(model_path):
+        return 1200000.00
+    try:
+        import re
+        with open(model_path, "r", encoding="latin-1") as f:
+            content = f.read()
+        # Buscar la definición de la variable PRESUPUESTO (ej. PRESUPUESTO = 1200000;)
+        match = re.search(r'PRESUPUESTO\s*=\s*(\d+(\.\d+)?)', content, re.IGNORECASE)
+        if match:
+            return float(match.group(1))
+    except Exception as e:
+        print(f"Error al extraer presupuesto de LINGO: {e}")
+    return 1200000.00
+
+
 # Configuración SQL Server
 SERVER_SQL = r"DESKTOP-KDQUSML\SQLEXPRESS"
 DB_NAME = "RODRIK_TRANSPORT_OPTIMIZATION"
@@ -42,3 +60,4 @@ def get_modelo_path():
 
 LINGO_EXE_PATH = get_lingo_executable()
 MODELO_PATH = get_modelo_path()
+PRESUPUESTO_LIMITE = get_presupuesto_limite(MODELO_PATH)

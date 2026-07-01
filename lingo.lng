@@ -50,7 +50,8 @@ DATA:
     @ODBC('RODRIK_ODBC','RESULTADOS_OPTIMIZACION','nombre_origen','nombre_destino','tipo_camion','nombre_producto','semana','num_viajes') = RUTA_CAMION_PERIODO, N; 
     @ODBC('RODRIK_ODBC','RESULTADOS_X','nombre_origen','nombre_destino','tipo_camion','nombre_producto','semana','cantidad_tn') = RUTA_CAMION_PERIODO, X;
 
-    M = 10000;   ! reducir si puedes;
+    M = 500;   ! reducir si puedes;
+    PRESUPUESTO = 1200000; ! Presupuesto Maximo de Transporte;
 ENDDATA
 
 
@@ -131,6 +132,11 @@ ENDDATA
     ) <= DISPONIBILIDAD_CAMION(C, P);
 );
 
+! 7. Restriccion de Presupuesto Maximo de Transporte;
+@SUM(RUTA_CAMION_PERIODO(O, D, C, K, P):
+    COSTO_VIAJE(O, D, K) * X(O, D, C, K, P)
+) <= PRESUPUESTO;
+
 ! ============================================================
 ! FUNCION OBJETIVO
 ! ============================================================;
@@ -139,9 +145,10 @@ ENDDATA
 ! Además, se penaliza fuertemente la demanda no atendida mediante la variable FALTA.;
 
 MIN = @SUM(RUTA_CAMION_PERIODO(O, D, C, K, P): COSTO_VIAJE(O, D, K) * X(O, D, C, K, P) ) 
-+ 100000 * @SUM(DESTINO_PRODUCTO_PERIODO(D, K, P): FALTA(D, K, P)); 
++ 2000 * @SUM(DESTINO_PRODUCTO_PERIODO(D, K, P): FALTA(D, K, P)); 
 
 
 
 
 END
+

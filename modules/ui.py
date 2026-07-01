@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
 import time
+from .config import PRESUPUESTO_LIMITE
 
 class RodrikInterface:
     def __init__(self, root, on_reload_data=None, on_verify_constraints=None, on_optimize=None):
@@ -17,6 +18,7 @@ class RodrikInterface:
         # Inicializar atributos
         self.console = None
         self.lbl_costo_val = None
+        self.lbl_presupuesto_val = None
         self.lbl_penalidad_val = None
         self.lbl_viajes_val = None
         self.lbl_servicio_val = None
@@ -100,11 +102,13 @@ class RodrikInterface:
         self.resumen_frame.pack(fill="x", padx=20, pady=10)
 
         self.card_costo = self.crear_tarjeta(self.resumen_frame, "Costo Operativo Real", "S/ 0.00", "#007bff")
+        self.card_presupuesto = self.crear_tarjeta(self.resumen_frame, "Presupuesto Límite", f"S/ {PRESUPUESTO_LIMITE:,.2f}", "#28a745")
         self.card_penalidad = self.crear_tarjeta(self.resumen_frame, "Penalidad (Faltantes)", "S/ 0.00", "#dc3545")
         self.card_viajes = self.crear_tarjeta(self.resumen_frame, "Total Viajes", "0", "#17a2b8")
         self.card_servicio = self.crear_tarjeta(self.resumen_frame, "Nivel de Servicio", "0%", "#ffc107")
 
         self.card_costo.pack(side="left", expand=True, fill="x", padx=5)
+        self.card_presupuesto.pack(side="left", expand=True, fill="x", padx=5)
         self.card_penalidad.pack(side="left", expand=True, fill="x", padx=5)
         self.card_viajes.pack(side="left", expand=True, fill="x", padx=5)
         self.card_servicio.pack(side="left", expand=True, fill="x", padx=5)
@@ -190,6 +194,8 @@ class RodrikInterface:
 
         if titulo == "Costo Operativo Real":
             self.lbl_costo_val = lbl
+        elif titulo == "Presupuesto Límite":
+            self.lbl_presupuesto_val = lbl
         elif titulo == "Penalidad (Faltantes)":
             self.lbl_penalidad_val = lbl
         elif titulo == "Total Viajes":
@@ -316,11 +322,12 @@ class RodrikInterface:
                 row['nombre_destino'], row['nombre_producto'], row['semana'], f"{row['cantidad_falta']:.2f}"
             ))
 
-    def update_cards(self, total_costo_operativo, costo_penalidad, total_viajes, servicio_text, servicio_color):
+    def update_cards(self, total_costo_operativo, costo_penalidad, total_viajes, servicio_text, servicio_color, presupuesto=PRESUPUESTO_LIMITE):
         self.lbl_costo_val.config(text=f"S/ {total_costo_operativo:,.2f}")
         self.lbl_penalidad_val.config(text=f"S/ {costo_penalidad:,.2f}")
         self.lbl_viajes_val.config(text=f"{int(total_viajes)}")
         self.lbl_servicio_val.config(text=servicio_text, fg=servicio_color)
+        self.lbl_presupuesto_val.config(text=f"S/ {presupuesto:,.2f}")
 
     def set_status(self, text, fg_color="black"):
         self.lbl_status.config(text=text, fg=fg_color)

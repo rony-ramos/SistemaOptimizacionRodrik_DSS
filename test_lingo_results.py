@@ -64,6 +64,7 @@ def run_tests():
         with open(script_abs, "w") as f:
             f.write("SET ECHOIN 1\n")
             f.write("SET TERSEO 0\n")
+            f.write("SET IPTOLR 0.001\n") #https://www.lindo.com/doc/online_help/lingo18_0/index.html?18__iptolr.htm
             f.write(f'TAKE {modelo_nombre}\n')
             f.write("GO\n")
             f.write("QUIT\n")
