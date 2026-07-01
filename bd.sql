@@ -102,43 +102,43 @@ CREATE TABLE DISPONIBILIDAD_CAMION (
     FOREIGN KEY (id_periodo) REFERENCES PERIODO(id_periodo)
 );
 
--- ============================================================
--- NUEVAS TABLAS PARA INVENTARIO Y COSTOS POR RANGO
--- ============================================================
+-- -- ============================================================
+-- -- NUEVAS TABLAS PARA INVENTARIO Y COSTOS POR RANGO
+-- -- ============================================================
 
-CREATE TABLE INVENTARIO_MINIMO (
-    id_inventario INT IDENTITY(1,1) PRIMARY KEY,
-    id_origen INT NOT NULL,
-    id_producto INT NOT NULL,
-    id_periodo INT NOT NULL,
-    cantidad_minima DECIMAL(10,2) NOT NULL,
-    estado BIT DEFAULT 1,
-    FOREIGN KEY (id_origen) REFERENCES ORIGEN(id_origen),
-    FOREIGN KEY (id_producto) REFERENCES PRODUCTO(id_producto),
-    FOREIGN KEY (id_periodo) REFERENCES PERIODO(id_periodo)
-);
+-- CREATE TABLE INVENTARIO_MINIMO (
+--     id_inventario INT IDENTITY(1,1) PRIMARY KEY,
+--     id_origen INT NOT NULL,
+--     id_producto INT NOT NULL,
+--     id_periodo INT NOT NULL,
+--     cantidad_minima DECIMAL(10,2) NOT NULL,
+--     estado BIT DEFAULT 1,
+--     FOREIGN KEY (id_origen) REFERENCES ORIGEN(id_origen),
+--     FOREIGN KEY (id_producto) REFERENCES PRODUCTO(id_producto),
+--     FOREIGN KEY (id_periodo) REFERENCES PERIODO(id_periodo)
+-- );
 
-CREATE TABLE RANGO_COSTO (
-    id_rango INT IDENTITY(1,1) PRIMARY KEY,
-    nombre_rango VARCHAR(80) NOT NULL,
-    limite_inferior DECIMAL(10,2) NOT NULL,
-    limite_superior DECIMAL(10,2) NOT NULL,
-    estado BIT DEFAULT 1
-);
+-- CREATE TABLE RANGO_COSTO (
+--     id_rango INT IDENTITY(1,1) PRIMARY KEY,
+--     nombre_rango VARCHAR(80) NOT NULL,
+--     limite_inferior DECIMAL(10,2) NOT NULL,
+--     limite_superior DECIMAL(10,2) NOT NULL,
+--     estado BIT DEFAULT 1
+-- );
 
-CREATE TABLE COSTO_RANGO (
-    id_costo_rango INT IDENTITY(1,1) PRIMARY KEY,
-    id_origen INT NOT NULL,
-    id_destino INT NOT NULL,
-    id_producto INT NOT NULL,
-    id_rango INT NOT NULL,
-    costo_unitario DECIMAL(10,2) NOT NULL,
-    estado BIT DEFAULT 1,
-    FOREIGN KEY (id_origen) REFERENCES ORIGEN(id_origen),
-    FOREIGN KEY (id_destino) REFERENCES DESTINO(id_destino),
-    FOREIGN KEY (id_producto) REFERENCES PRODUCTO(id_producto),
-    FOREIGN KEY (id_rango) REFERENCES RANGO_COSTO(id_rango)
-);
+-- CREATE TABLE COSTO_RANGO (
+--     id_costo_rango INT IDENTITY(1,1) PRIMARY KEY,
+--     id_origen INT NOT NULL,
+--     id_destino INT NOT NULL,
+--     id_producto INT NOT NULL,
+--     id_rango INT NOT NULL,
+--     costo_unitario DECIMAL(10,2) NOT NULL,
+--     estado BIT DEFAULT 1,
+--     FOREIGN KEY (id_origen) REFERENCES ORIGEN(id_origen),
+--     FOREIGN KEY (id_destino) REFERENCES DESTINO(id_destino),
+--     FOREIGN KEY (id_producto) REFERENCES PRODUCTO(id_producto),
+--     FOREIGN KEY (id_rango) REFERENCES RANGO_COSTO(id_rango)
+-- );
 
 -- ============================================================
 -- DATOS MAESTROS
@@ -209,15 +209,15 @@ INSERT INTO DEMANDA (id_destino, id_producto, id_periodo, cantidad_tn) VALUES
 -- ============================================================
 
 INSERT INTO COSTO (id_origen, id_destino, id_producto, costo_base) VALUES
-(1, 1, 1, 1210.0), (1, 1, 2, 1080.0), (1, 1, 3, 1165.0),
-(1, 2, 1, 980.0),  (1, 2, 2, 890.0),  (1, 2, 3, 950.0),
-(1, 3, 1, 1160.0), (1, 3, 2, 1035.0), (1, 3, 3, 1110.0),
-(1, 4, 1, 1045.0), (1, 4, 2, 955.0),  (1, 4, 3, 1015.0),
+(1, 1, 1, 48.40), (1, 1, 2, 43.20), (1, 1, 3, 46.60),
+(1, 2, 1, 39.20), (1, 2, 2, 35.60), (1, 2, 3, 38.00),
+(1, 3, 1, 46.40), (1, 3, 2, 41.40), (1, 3, 3, 44.40),
+(1, 4, 1, 41.80), (1, 4, 2, 38.20), (1, 4, 3, 40.60),
 
-(2, 1, 1, 920.0),  (2, 1, 2, 850.0),  (2, 1, 3, 895.0),
-(2, 2, 1, 1240.0), (2, 2, 2, 1115.0), (2, 2, 3, 1195.0),
-(2, 3, 1, 1015.0), (2, 3, 2, 925.0),  (2, 3, 3, 985.0),
-(2, 4, 1, 1355.0), (2, 4, 2, 1220.0), (2, 4, 3, 1305.0);
+(2, 1, 1, 36.80), (2, 1, 2, 34.00), (2, 1, 3, 35.80),
+(2, 2, 1, 49.60), (2, 2, 2, 44.60), (2, 2, 3, 47.80),
+(2, 3, 1, 40.60), (2, 3, 2, 37.00), (2, 3, 3, 39.40),
+(2, 4, 1, 54.20), (2, 4, 2, 48.80), (2, 4, 3, 52.20);
 
 -- ============================================================
 -- COMPATIBILIDAD CAMIÓN - PRODUCTO
@@ -237,31 +237,31 @@ INSERT INTO VALIDA_CAMION_PRODUCTO (id_camion, id_producto) VALUES
 -- DISPONIBILIDAD DE VIAJES POR CAMIÓN Y SEMANA
 -- ============================================================
 INSERT INTO DISPONIBILIDAD_CAMION (id_camion, id_periodo, cantidad_viajes) VALUES
-(1, 1, 80),  (1, 2, 85),  (1, 3, 90),  (1, 4, 75),
-(2, 1, 100), (2, 2, 105), (2, 3, 110), (2, 4, 95),
-(3, 1, 70),  (3, 2, 75),  (3, 3, 80),  (3, 4, 65);
+(1, 1, 240),  (1, 2, 255),  (1, 3, 270),  (1, 4, 225),
+(2, 1, 300), (2, 2, 315), (2, 3, 330), (2, 4, 285),
+(3, 1, 210),  (3, 2, 225),  (3, 3, 240),  (3, 4, 195);
 
 -- ============================================================
 -- INVENTARIO MÍNIMO
 -- Se considera 5% de la oferta como inventario de seguridad
 -- ============================================================
 
-INSERT INTO INVENTARIO_MINIMO (id_origen, id_producto, id_periodo, cantidad_minima)
-SELECT 
-    id_origen,
-    id_producto,
-    id_periodo,
-    ROUND(cantidad_tn * 0.05, 2)
-FROM OFERTA;
+-- INSERT INTO INVENTARIO_MINIMO (id_origen, id_producto, id_periodo, cantidad_minima)
+-- SELECT 
+--     id_origen,
+--     id_producto,
+--     id_periodo,
+--     ROUND(cantidad_tn * 0.05, 2)
+-- FROM OFERTA;
 
 -- ============================================================
 -- RANGOS DE COSTO
 -- ============================================================
 
-INSERT INTO RANGO_COSTO (nombre_rango, limite_inferior, limite_superior) VALUES
-('Rango 1 - Bajo volumen', 0.00, 500.00),
-('Rango 2 - Volumen medio', 500.01, 1000.00),
-('Rango 3 - Alto volumen', 1000.01, 10000.00);
+-- INSERT INTO RANGO_COSTO (nombre_rango, limite_inferior, limite_superior) VALUES
+-- ('Rango 1 - Bajo volumen', 0.00, 500.00),
+-- ('Rango 2 - Volumen medio', 500.01, 1000.00),
+-- ('Rango 3 - Alto volumen', 1000.01, 10000.00);
 
 -- ============================================================
 -- COSTOS POR RANGO
@@ -270,23 +270,23 @@ INSERT INTO RANGO_COSTO (nombre_rango, limite_inferior, limite_superior) VALUES
 -- Rango 3: 10% de descuento
 -- ============================================================
 
-INSERT INTO COSTO_RANGO 
-(id_origen, id_destino, id_producto, id_rango, costo_unitario)
-SELECT 
-    c.id_origen,
-    c.id_destino,
-    c.id_producto,
-    r.id_rango,
-    ROUND(
-        c.costo_base *
-        CASE 
-            WHEN r.id_rango = 1 THEN 1.00
-            WHEN r.id_rango = 2 THEN 0.95
-            WHEN r.id_rango = 3 THEN 0.90
-        END, 2
-    ) AS costo_unitario
-FROM COSTO c
-CROSS JOIN RANGO_COSTO r;
+-- INSERT INTO COSTO_RANGO 
+-- (id_origen, id_destino, id_producto, id_rango, costo_unitario)
+-- SELECT 
+--     c.id_origen,
+--     c.id_destino,
+--     c.id_producto,
+--     r.id_rango,
+--     ROUND(
+--         c.costo_base *
+--         CASE 
+--             WHEN r.id_rango = 1 THEN 1.00
+--             WHEN r.id_rango = 2 THEN 0.95
+--             WHEN r.id_rango = 3 THEN 0.90
+--         END, 2
+--     ) AS costo_unitario
+-- FROM COSTO c
+-- CROSS JOIN RANGO_COSTO r;
 
 -- ============================================================
 -- TABLAS DE RESULTADOS DONDE LINGO EXPORTARÁ
@@ -317,16 +317,16 @@ CREATE TABLE RESULTADOS_X (
     cantidad_tn DECIMAL(10,2)
 );
 
--- Opcional: si luego deseas exportar el volumen asignado por rango
-CREATE TABLE RESULTADOS_RANGO (
-    nombre_origen VARCHAR(80),
-    nombre_destino VARCHAR(80),
-    tipo_camion VARCHAR(80),
-    nombre_producto VARCHAR(80),
-    semana VARCHAR(50),
-    nombre_rango VARCHAR(80),
-    cantidad_tn DECIMAL(10,2)
-);
+-- -- Opcional: si luego deseas exportar el volumen asignado por rango
+-- CREATE TABLE RESULTADOS_RANGO (
+--     nombre_origen VARCHAR(80),
+--     nombre_destino VARCHAR(80),
+--     tipo_camion VARCHAR(80),
+--     nombre_producto VARCHAR(80),
+--     semana VARCHAR(50),
+--     nombre_rango VARCHAR(80),
+--     cantidad_tn DECIMAL(10,2)
+-- );
 
 -- ============================================================
 -- PRELLENADO DE TABLAS DE RESULTADOS
@@ -374,25 +374,26 @@ CROSS JOIN CAMION c
 CROSS JOIN PRODUCTO p
 CROSS JOIN PERIODO pe
 ORDER BY o.id_origen, d.id_destino, c.id_camion, p.id_producto, pe.id_periodo;
-
-INSERT INTO RESULTADOS_RANGO
-(nombre_origen, nombre_destino, tipo_camion, nombre_producto, semana, nombre_rango, cantidad_tn)
-SELECT 
-    o.nombre_origen,
-    d.nombre_destino,
-    c.tipo_camion,
-    p.nombre_producto,
-    pe.nombre_periodo,
-    r.nombre_rango,
-    0.0
-FROM ORIGEN o
-CROSS JOIN DESTINO d
-CROSS JOIN CAMION c
-CROSS JOIN PRODUCTO p
-CROSS JOIN PERIODO pe
-CROSS JOIN RANGO_COSTO r
-ORDER BY o.id_origen, d.id_destino, c.id_camion, p.id_producto, pe.id_periodo, r.id_rango;
 GO
+
+-- INSERT INTO RESULTADOS_RANGO
+-- (nombre_origen, nombre_destino, tipo_camion, nombre_producto, semana, nombre_rango, cantidad_tn)
+-- SELECT 
+--     o.nombre_origen,
+--     d.nombre_destino,
+--     c.tipo_camion,
+--     p.nombre_producto,
+--     pe.nombre_periodo,
+--     r.nombre_rango,
+--     0.0
+-- FROM ORIGEN o
+-- CROSS JOIN DESTINO d
+-- CROSS JOIN CAMION c
+-- CROSS JOIN PRODUCTO p
+-- CROSS JOIN PERIODO pe
+-- CROSS JOIN RANGO_COSTO r
+-- ORDER BY o.id_origen, d.id_destino, c.id_camion, p.id_producto, pe.id_periodo, r.id_rango;
+-- GO
 
 -- ============================================================
 -- VISTAS REQUERIDAS POR LINGO
@@ -492,65 +493,65 @@ FROM DEMANDA
 ORDER BY id_destino, id_producto, id_periodo;
 GO
 
-CREATE VIEW VW_INVENTARIO_MIN_ORDENADO AS
-SELECT TOP (100) PERCENT
-    id_origen,
-    id_producto,
-    id_periodo,
-    cantidad_minima
-FROM INVENTARIO_MINIMO
-WHERE estado = 1
-ORDER BY id_origen, id_producto, id_periodo;
-GO
+-- CREATE VIEW VW_INVENTARIO_MIN_ORDENADO AS
+-- SELECT TOP (100) PERCENT
+--     id_origen,
+--     id_producto,
+--     id_periodo,
+--     cantidad_minima
+-- FROM INVENTARIO_MINIMO
+-- WHERE estado = 1
+-- ORDER BY id_origen, id_producto, id_periodo;
+-- GO
 
-CREATE VIEW VW_RANGO_ORDENADO AS
-SELECT TOP (100) PERCENT
-    id_rango,
-    nombre_rango,
-    limite_inferior,
-    limite_superior
-FROM RANGO_COSTO
-WHERE estado = 1
-ORDER BY id_rango;
-GO
+-- CREATE VIEW VW_RANGO_ORDENADO AS
+-- SELECT TOP (100) PERCENT
+--     id_rango,
+--     nombre_rango,
+--     limite_inferior,
+--     limite_superior
+-- FROM RANGO_COSTO
+-- WHERE estado = 1
+-- ORDER BY id_rango;
+-- GO
 
-CREATE VIEW VW_COSTO_RANGO_ORDENADO AS
-SELECT TOP (100) PERCENT
-    id_origen,
-    id_destino,
-    id_producto,
-    id_rango,
-    costo_unitario
-FROM COSTO_RANGO
-WHERE estado = 1
-ORDER BY id_origen, id_destino, id_producto, id_rango;
-GO
+-- CREATE VIEW VW_COSTO_RANGO_ORDENADO AS
+-- SELECT TOP (100) PERCENT
+--     id_origen,
+--     id_destino,
+--     id_producto,
+--     id_rango,
+--     costo_unitario
+-- FROM COSTO_RANGO
+-- WHERE estado = 1
+-- ORDER BY id_origen, id_destino, id_producto, id_rango;
+-- GO
 
 
-TRUNCATE TABLE RESULTADOS_RANGO;
-GO
+-- TRUNCATE TABLE RESULTADOS_RANGO;
+-- GO
 
-INSERT INTO RESULTADOS_RANGO
-(nombre_origen, nombre_destino, tipo_camion, nombre_producto, semana, nombre_rango, cantidad_tn)
-SELECT 
-    o.nombre_origen,
-    d.nombre_destino,
-    c.tipo_camion,
-    p.nombre_producto,
-    pe.nombre_periodo,
-    r.nombre_rango,
-    0.0
-FROM ORIGEN o
-CROSS JOIN DESTINO d
-CROSS JOIN CAMION c
-CROSS JOIN PRODUCTO p
-CROSS JOIN PERIODO pe
-CROSS JOIN RANGO_COSTO r
-ORDER BY 
-    o.id_origen,
-    d.id_destino,
-    c.id_camion,
-    p.id_producto,
-    pe.id_periodo,
-    r.id_rango;
-GO
+-- INSERT INTO RESULTADOS_RANGO
+-- (nombre_origen, nombre_destino, tipo_camion, nombre_producto, semana, nombre_rango, cantidad_tn)
+-- SELECT 
+--     o.nombre_origen,
+--     d.nombre_destino,
+--     c.tipo_camion,
+--     p.nombre_producto,
+--     pe.nombre_periodo,
+--     r.nombre_rango,
+--     0.0
+-- FROM ORIGEN o
+-- CROSS JOIN DESTINO d
+-- CROSS JOIN CAMION c
+-- CROSS JOIN PRODUCTO p
+-- CROSS JOIN PERIODO pe
+-- CROSS JOIN RANGO_COSTO r
+-- ORDER BY 
+--     o.id_origen,
+--     d.id_destino,
+--     c.id_camion,
+--     p.id_producto,
+--     pe.id_periodo,
+--     r.id_rango;
+-- GO

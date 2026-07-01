@@ -76,7 +76,7 @@ def run_lingo_model(lingo_path, model_path):
 
 def calculate_metrics(df_res, df_falta, demanda_total_df):
     """Calcula el costo operativo real y el costo total de la función objetivo."""
-    MULTA_COEFICIENTE = 10000  # Valor de diagnóstico
+    MULTA_COEFICIENTE = 300  # Valor de diagnóstico
 
     # 1. CÁLCULO DE COSTOS OPERACIONALES
     df_res['volumen_tn'] = df_res['num_viajes'] * df_res['capacidad_efectiva']
