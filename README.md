@@ -89,7 +89,7 @@ El coeficiente Big-M usado en la activación de rutas (`N <= M * Y`) se ha reduc
 Al activar la restricción de presupuesto, el modelo entero mixto se vuelve muy ajustado en su frontera de factibilidad, lo que provoca que LINGO intente demostrar la optimización absoluta (0.00% de gap) tardando varios minutos.
 * **Solución**: En el script de ejecución `run_cmd.ltf` y el archivo de pruebas `test_lingo_results.py`, se configura el parámetro **`SET IPTOLR 0.001`**.
 * **Impacto**: Esto establece la tolerancia de optimalidad relativa (MIP Gap) en **0.1%**. En cuanto LINGO encuentra una solución factible con un margen de error menor al 0.1% respecto al límite teórico, detiene la búsqueda y guarda los resultados en el acto. Esto reduce el tiempo de ejecución en entornos complejos de minutos a **pocos segundos**.
-
+ref: https://www.lindo.com/doc/online_help/lingo18_0/index.html?18__iptolr.htm
 ## Uso del Sistema
 Una vez abierta la interfaz gráfica:
 1. Haz clic en **▶ EJECUTAR OPTIMIZACIÓN**.
